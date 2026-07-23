@@ -31,3 +31,5 @@ desktop.ini
 .eslintcache
 .prettiercache
 .npm/   
+
+serviceAccountKey.json
