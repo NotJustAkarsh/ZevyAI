@@ -7,11 +7,11 @@ import { getAuth, GoogleAuthProvider } from "firebase/auth";
 // Your web app's Firebase configuration
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API,
-  authDomain: "zevyai.firebaseapp.com",
-  projectId: "zevyai",
-  storageBucket: "zevyai.firebasestorage.app",
-  messagingSenderId: "423226260432",
-  appId: "1:423226260432:web:d655713657d14d012e57d5"
+  authDomain: "zevyai-66409.firebaseapp.com",
+  projectId: "zevyai-66409",
+  storageBucket: "zevyai-66409.firebasestorage.app",
+  messagingSenderId: "87116089176",
+  appId: "1:87116089176:web:47fd768f0b700107b0872d"
 };
 
 // Initialize Firebase
