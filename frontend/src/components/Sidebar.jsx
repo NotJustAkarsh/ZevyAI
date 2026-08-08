@@ -23,6 +23,7 @@ import { setUserData } from "../redux/userSlice";
 
 const Sidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const dispatch = useDispatch();
   const [imageError, setImageError] = useState(false);
   const { conversations, selectedConversation } = useSelector(
@@ -37,14 +38,25 @@ const Sidebar = () => {
     getConv();
   }, [userData?._id]);
 
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const handleCreateConversation = async () => {
     const data = await createConversation();
     dispatch(addConversation(data));
   };
 
-  if (collapsed) {
+  const shouldCollapse = isMobile || collapsed;
+
+  if (shouldCollapse) {
     return (
-      <div className="hidden lg:flex flex-col items-center w-14 h-screen bg-[#0d0f14] border-r border-white/6 py-4 gap-1 shrink-0">
+      <div className="flex flex-col items-center w-14 h-screen bg-[#0d0f14] border-r border-white/6 py-4 gap-1 shrink-0">
         <button
           className="flex items-center justify-center w-9 h-9 rounded-xl text-slate-500 hover:text-slate-200 hover:bg-white/5 transition-colors duration-150 bg-transparent border-none cursor-pointer mb-1"
           onClick={() => {
@@ -100,7 +112,7 @@ const Sidebar = () => {
     );
   }
   return (
-    <div className="fixed lg:static inset-y-0 left-0 z-50 w-67.5 h-screen shrink-0 bg-[#0d0f14] border-r border-white/6">
+    <div className="hidden lg:flex relative w-67.5 h-screen shrink-0 bg-[#0d0f14] border-r border-white/6">
       <div className="flex flex-col h-full">
         {/* Sidebar Header */}
 

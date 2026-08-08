@@ -6,9 +6,12 @@ import cookieParser from "cookie-parser";
 import protect from "./middleware/auth.middleware.js";
 import getCurrentUser from "./controller/user.controller.js";
 import { proxyWithHeader } from "./utils/proxyWithHeader.js";
+import morgan from "morgan"
 
 dotenv.config();
 const port = process.env.PORT;
+
+
 
 const app = express();
 app.use(
@@ -17,6 +20,8 @@ app.use(
     credentials: true,
   }),
 );
+
+app.use(morgan("dev"))
 
 app.use(cookieParser());
 
