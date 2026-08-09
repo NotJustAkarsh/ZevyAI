@@ -5,7 +5,7 @@ const MessageList = () => {
   const { selectedConversation } = useSelector((state) => state.conversation);
   const { messages } = useSelector((state) => state.message);
   return (
-    <div className="flex-1 overflow-y-auto px-6 py-6 space-y-5 [scrollbar-width:none][&::-webkit-scrollbar]:hidden">
+    <div className="flex-1 overflow-y-auto px-6 py-6 space-y-5 scrollbar-none [&::-webkit-scrollbar]:hidden">
       {messages.length == 0 || !selectedConversation ? (
         <div className="h-full flex flex-col items-center justify-center gap-4 text-center">
           <div className="flex flex-col gap-1.5">
