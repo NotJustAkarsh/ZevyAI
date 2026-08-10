@@ -25,8 +25,11 @@ const MessageList = () => {
               "Write a Netflix clone",
               "Explain Redis",
               "Build a dashboard",
-            ].map((s,i) => (
-              <button key={i} className="text-[12px] text-slate-400 bg-white/4 border border-white/7 px-3 py-1.5 rounded-lg hover:bg-white/8 hover:text-slate-200 transition-colors duration-150 cursor-pointer">
+            ].map((s, i) => (
+              <button
+                key={i}
+                className="text-[12px] text-slate-400 bg-white/4 border border-white/7 px-3 py-1.5 rounded-lg hover:bg-white/8 hover:text-slate-200 transition-colors duration-150 cursor-pointer"
+              >
                 {s}
               </button>
             ))}
@@ -35,8 +38,12 @@ const MessageList = () => {
       ) : (
         <div>
           {messages?.map((msg, i) => (
-            <div key={i}>
-              <MessageBubble role={msg?.role} content={msg?.content} />
+            <div className="py-2" key={i}>
+              <MessageBubble
+                role={msg?.role}
+                content={msg?.content}
+                images={msg.images || []}
+              />
             </div>
           ))}
         </div>

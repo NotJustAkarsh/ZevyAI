@@ -13,11 +13,9 @@ import { useEffect, useState } from "react";
 import { getConversations } from "../features/getConversations";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  addConversation,
   setConversations,
   setSelectedConversation,
 } from "../redux/conversationSlice";
-import { createConversation } from "../features/createConversation";
 import logOut from "../features/logOut";
 import { setUserData } from "../redux/userSlice";
 
@@ -47,11 +45,6 @@ const Sidebar = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const handleCreateConversation = async () => {
-    const data = await createConversation();
-    dispatch(addConversation(data));
-  };
-
   const shouldCollapse = isMobile || collapsed;
 
   if (shouldCollapse) {
@@ -67,7 +60,7 @@ const Sidebar = () => {
         </button>
         <button
           className="flex items-center justify-center w-9 h-9 rounded-xl text-slate-500 hover:text-green-500 hover:bg-white/5 transition-colors duration-150 bg-transparent border-none cursor-pointer"
-          onClick={handleCreateConversation}
+          onClick={() => dispatch(setSelectedConversation(null))}
         >
           <Plus />
         </button>
@@ -85,29 +78,28 @@ const Sidebar = () => {
                 >
                   <MessageSquare size={16} />
                 </div>
-
               </div>
             );
           })}
         </div>
         <div className="relative shrink-0">
-                {userData?.avatar && !imageError ? (
-                  <div>
-                    <img
-                      className="w-9 h-9 rounded-full object-cover border-2 border-indigo-500/25"
-                      src={userData.avatar}
-                      alt="image"
-                      onError={() => {
-                        setImageError(true);
-                      }}
-                    />
-                  </div>
-                ) : (
-                  <div className="w-9 h-9 rounded-full bg-white/6 flex items-center justify-center">
-                    <User size={15} className="text-slate-400" />
-                  </div>
-                )}
-              </div>
+          {userData?.avatar && !imageError ? (
+            <div>
+              <img
+                className="w-9 h-9 rounded-full object-cover border-2 border-indigo-500/25"
+                src={userData.avatar}
+                alt="image"
+                onError={() => {
+                  setImageError(true);
+                }}
+              />
+            </div>
+          ) : (
+            <div className="w-9 h-9 rounded-full bg-white/6 flex items-center justify-center">
+              <User size={15} className="text-slate-400" />
+            </div>
+          )}
+        </div>
       </div>
     );
   }
