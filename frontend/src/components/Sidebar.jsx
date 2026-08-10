@@ -136,7 +136,7 @@ const Sidebar = () => {
             </span>
             <span
               className="text-slate-500 hover:text-slate-200 transition-colors duration-150 bg-transparent cursor-pointer"
-              onClick={() => handleCreateConversation()}
+              onClick={() => dispatch(setSelectedConversation(null))}
             >
               <PenBoxIcon size={16} />
             </span>
@@ -148,7 +148,7 @@ const Sidebar = () => {
         <div className="px-4 pt-4 pb-1">
           <button
             className="font-semibold flex px-3 py-2 items-center justify-center w-full gap-2 rounded-xl text-black bg-slate-100 hover:opacity-90 active:scale-101 transition-all duration-150"
-            onClick={() => handleCreateConversation()}
+            onClick={() => dispatch(setSelectedConversation(null))}
           >
             <PlusIcon size={18} />
             New Chat
