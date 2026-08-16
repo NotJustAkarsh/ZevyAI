@@ -13,7 +13,7 @@ import {
 import { useState } from "react";
 import sendMessage from "../../features/sendMessage";
 import { useDispatch, useSelector } from "react-redux";
-import { addMessage } from "../../redux/messageSlice";
+import { addMessage, setArtifacts } from "../../redux/messageSlice";
 import { createConversation } from "../../features/createConversation";
 import {
   addConversation,
@@ -70,6 +70,8 @@ const ChatInput = () => {
       return;
     }
 
+    dispatch(setArtifacts(data.artifacts || []));
+
     dispatch(
       addMessage({
         role: "assistant",
@@ -121,12 +123,12 @@ const ChatInput = () => {
     <div className="w-full overflow-hidden px-3 md:px-5 py-4 border-t border-white/6 bg-[#0d0f14]">
       <div className="flex flex-col gap-2 bg-white/3 border border-white/7 rounded-2xl px-4 pt-3.5 pb-3">
         <div className="flex w-[80%] gap-2 pr-2 flex-wrap">
-          {agents.map((agent,i) => {
+          {agents.map((agent, i) => {
             const isActive = selectedAgent === agent.label;
             const Icon = agent.icon;
             return (
               <div
-              key={i}
+                key={i}
                 onClick={() => setSelectedAgent(agent.label)}
                 className={`flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium border transition-all cursor-pointer ${isActive ? "bg-linear-to-r from-indigo-500 to-violet-600 text-white border-transparent shadow-[0_1px_8px_rgba(99,182,241,.35)]" : "bg-white/3 text-slate-400 border-white/6 hover:bg-white/7 "}`}
               >
