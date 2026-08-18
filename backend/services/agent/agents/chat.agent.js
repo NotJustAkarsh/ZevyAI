@@ -54,7 +54,7 @@ export const chatAgent = async (state) => {
   });
 
   messages.push(new HumanMessage(state.prompt));
-  console.log(messages);
+  // console.log(messages);
 
   const response = await llm.invoke(messages);
 

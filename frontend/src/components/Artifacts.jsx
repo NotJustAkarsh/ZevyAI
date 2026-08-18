@@ -1,4 +1,5 @@
 import {
+  Check,
   Code2,
   Copy,
   Eye,
@@ -14,10 +15,11 @@ const Artifacts = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [tab, setTab] = useState("code");
   const [activeFile, setActiveFile] = useState(0);
+  const [copied, setCopied] = useState(false);
   const { artifacts } = useSelector((state) => state.message);
   if (artifacts.length == 0) return;
 
-  const file = artifacts[0]?.files[activeFile]?.content;
+  const file = artifacts[0]?.files[activeFile];
   const htmlFile = artifacts[0]?.files.find((f) => f.name === "index.html");
   const cssFile = artifacts[0]?.files?.find((f) => f.name === "style.css");
   const jsFile = artifacts[0]?.files?.find((f) => f.name === "script.js");
@@ -41,6 +43,14 @@ const Artifacts = () => {
     </script>
 </body>
 </html>`;
+
+const handleCopy = async()=>{
+  await navigator.clipboard.writeText(file?.content || "")
+  setCopied(true)
+  setTimeout(()=>{
+    setCopied(false)
+  },2000)
+}
 
   const detectLanguage = (filename = "") => {
     const name = filename.toLowerCase();
@@ -83,8 +93,11 @@ const Artifacts = () => {
                 {artifacts[0]?.title}
               </div>
               <div className="flex items-center gap-1 shrink-0">
-                <button className="flex items-center gap-1.5 px-2.5 py-1.5 text-[11px] font-medium text-slate-400 hover:text-slate-200 hover:bg-white/5 rounded-lg transition-colors duration-150 bg-transparent border-none cursor-pointer">
-                  <Copy size={15} />
+                <button
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 text-[11px] font-medium text-slate-400 hover:text-slate-200 hover:bg-white/5 rounded-lg transition-colors duration-150 bg-transparent border-none cursor-pointer"
+                  onClick={handleCopy}
+                >
+                  {copied === true ? <Check className="text-green-700" size={15} /> : <Copy size={15} />}
                 </button>
               </div>
 
@@ -146,7 +159,22 @@ const Artifacts = () => {
                 transition={{ duration: 0.5 }}
                 className="w-full h-full"
               >
-                <Editor theme="vs-dark" language={detectLanguage(file?.name)} value={file} />
+                <Editor
+                  theme="vs-dark"
+                  language={detectLanguage(file?.name)}
+                  value={file?.content}
+                  options={{
+                    readOnly: true,
+                    minimap: { enabled: false },
+                    fontSize: 13,
+                    wordWrap: "on",
+                    automaticLayout: true,
+                    scrollBeyondLastLine: false,
+                    padding: { top: 16 },
+                    lineNumbers: "on",
+                    renderLineHighlight: "none",
+                  }}
+                />
               </motion.div>
             )}
           </div>
