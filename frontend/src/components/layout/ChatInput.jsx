@@ -58,18 +58,6 @@ const ChatInput = () => {
     setValue("");
     const data = await sendMessage(payload);
 
-    if (!data || typeof data.answer !== "string") {
-      dispatch(
-        addMessage({
-          role: "assistant",
-          content:
-            "Sorry, I couldn't get a response. Please try again or check the search service.",
-        }),
-      );
-      console.error("sendMessage returned invalid response:", data);
-      return;
-    }
-
     dispatch(setArtifacts(data.artifacts || []));
 
     dispatch(

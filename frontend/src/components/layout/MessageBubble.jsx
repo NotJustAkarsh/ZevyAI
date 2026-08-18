@@ -2,7 +2,7 @@ import { Check, Copy, ExternalLink, X } from "lucide-react";
 import { useState } from "react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import {Prism as SyntaxHighlighter} from "react-syntax-highlighter";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 const MessageBubble = ({ role, content, images }) => {
@@ -127,15 +127,34 @@ const MessageBubble = ({ role, content, images }) => {
                       )}
                     </button>
                   </div>
-                  <SyntaxHighlighter language={language} style={oneDark}  wrapLongLines showLineNumbers customStyle={{
-                    margin:0,
-                    padding:"16px",
-                    background:"#od1117",
-                    fontSize:"13px"
-                  }} >
+                  <SyntaxHighlighter
+                    language={language}
+                    style={oneDark}
+                    wrapLongLines
+                    showLineNumbers
+                    customStyle={{
+                      margin: 0,
+                      padding: "16px",
+                      background: "#od1117",
+                      fontSize: "13px",
+                    }}
+                  >
                     {value}
                   </SyntaxHighlighter>
                 </div>
+              );
+            },
+
+            img: ({ src }) => {
+              if (!src) return null;
+              return (
+                <img
+                  onClick={() => setLightBox(src)}
+                  src={src}
+                  loading="lazy"
+                  onError={(e) => e.currentTarget.remove()}
+                  className="w-40 h-28 rounded-xl object-cover border border-white/10 cursor-zoom-in hover:opacity-90 transition"
+                />
               );
             },
           }}
