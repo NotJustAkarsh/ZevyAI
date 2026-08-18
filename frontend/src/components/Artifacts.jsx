@@ -130,7 +130,7 @@ const handleCopy = async()=>{
                 >
                   {file.name}
                   {activeFile === i && (
-                    <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-indigo-500 rounded-t-full" />
+                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-500 rounded-t-full" />
                   )}
                 </button>
               ))}
