@@ -1,9 +1,21 @@
 import { getModel } from "../config/llmModels.js";
 
 export const router = async (state) => {
-  
   if (state.agent && state.agent !== "auto") {
-    return { ...state, agent:state.agent };
+    return { ...state, agent: state.agent };
+  }
+
+  if (state.file?.mimetype === "application/pdf") {
+    return {
+      ...state,
+      agent: "pdfRag",
+    };
+  }
+  if (state.file?.mimetype?.startsWith("image/")) {
+    return {
+      ...state,
+      agent: "imageRag",
+    };
   }
 
   const llm = await getModel("router");

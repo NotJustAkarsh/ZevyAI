@@ -7,10 +7,11 @@ import {
   Mic,
   Paperclip,
   Presentation,
+  X,
   Send,
   Zap,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import sendMessage from "../../features/sendMessage";
 import { useDispatch, useSelector } from "react-redux";
 import { addMessage, setArtifacts } from "../../redux/messageSlice";
@@ -21,12 +22,28 @@ import {
   setSelectedConversation,
 } from "../../redux/conversationSlice";
 import { updateConversation } from "../../features/updateConversation";
+import { useRef } from "react";
 
 const ChatInput = () => {
   const [value, setValue] = useState("");
   const [selectedAgent, setSelectedAgent] = useState("Auto");
+  const [selectedFile, setSelectedFile] = useState(null);
+  const fileRef = useRef(null);
   const { selectedConversation } = useSelector((state) => state.conversation);
   const dispatch = useDispatch();
+
+  const previewUrl = useMemo(() => {
+    if (!selectedFile?.type.startsWith("image/")) {
+      return "";
+    }
+    return URL.createObjectURL(selectedFile);
+  }, [selectedFile]);
+
+  useEffect(() => () => {
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+    }
+  }, [previewUrl]);
 
   const handleSendMessage = async () => {
     let conversation = selectedConversation;
@@ -48,15 +65,21 @@ const ChatInput = () => {
       );
     }
 
-    const payload = {
-      prompt: value.trim(),
-      conversationId: conversation._id,
-      agent: selectedAgent.toLowerCase(),
-    };
+    const formData = new FormData();
+    formData.append("prompt", value.trim());
+    formData.append("conversationId", conversation?._id);
+    formData.append("agent", selectedAgent.toLowerCase());
+    if (selectedFile) {
+      formData.append("file", selectedFile);
+    }
 
     dispatch(addMessage({ role: "user", content: value.trim() }));
     setValue("");
-    const data = await sendMessage(payload);
+    setSelectedFile(null);
+    if (fileRef.current) {
+      fileRef.current.value = "";
+    }
+    const data = await sendMessage(formData);
 
     dispatch(setArtifacts(data.artifacts || []));
 
@@ -68,6 +91,13 @@ const ChatInput = () => {
       }),
     );
     console.log(data);
+  };
+
+  const removeSelectedFile = () => {
+    setSelectedFile(null);
+    if (fileRef.current) {
+      fileRef.current.value = "";
+    }
   };
 
   const agents = [
@@ -138,9 +168,40 @@ const ChatInput = () => {
           placeholder="What's on your mind today ???"
           className="w-full bg-transparent outline-none resize-none text-[14px] text-slate-200 placeholder:text-slate-600 leading-relaxed scrollbar-none [&::-webkit-scrollbar]:hidden disabled:opacity-50"
         />
+        {selectedFile && (
+          <div className="flex items-center gap-2 self-start max-w-full rounded-lg border border-white/10 bg-white/5 px-2 py-1.5">
+            {selectedFile.type.startsWith("image/") ? (
+              <img
+                src={previewUrl}
+                alt={selectedFile.name}
+                className="h-10 w-10 rounded object-cover"
+              />
+            ) : (
+              <FileText size={18} className="text-slate-400" />
+            )}
+            <span className="max-w-40 truncate text-xs text-slate-300">
+              {selectedFile.name}
+            </span>
+            <button
+              type="button"
+              onClick={removeSelectedFile}
+              aria-label={`Remove ${selectedFile.name}`}
+              title="Remove file"
+              className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-slate-500 hover:bg-white/10 hover:text-slate-200"
+            >
+              <X size={14} />
+            </button>
+          </div>
+        )}
         <div className="flex items-center justify-between">
           <div className="flex">
-            <button className="flex items-center justify-center w-8 h-8 rounded-full text-slate-600 hover:text-slate-400 hover:bg-white/5 border border-transparent hover:border-white/6 transition-all duration-150 bg-transparent cursor-pointer">
+            <input type="file" accept=".pdf,image/*" hidden ref={fileRef} onChange={(e) => {
+              const file = e.target.files?.[0]
+              if(file){
+                setSelectedFile(file)
+              }
+            }} />
+            <button type="button" aria-label="Attach a file" title="Attach a file" className="flex items-center justify-center w-8 h-8 rounded-full text-slate-600 hover:text-slate-400 hover:bg-white/5 border border-transparent hover:border-white/6 transition-all duration-150 bg-transparent cursor-pointer" onClick={() => fileRef.current?.click()} >
               <Paperclip size={16} />
             </button>
             <button className="flex items-center justify-center w-8 h-8 rounded-full text-slate-600 hover:text-slate-400 hover:bg-white/5 border border-transparent hover:border-white/6 transition-all duration-150 bg-transparent cursor-pointer">

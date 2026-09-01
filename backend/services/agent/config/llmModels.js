@@ -6,7 +6,7 @@ const groq = new ChatGroq({
     model: "openai/gpt-oss-120b",
 })
 const gemini = new ChatGoogleGenerativeAI({
-    model: "gemini-2.5-flash",
+    model: "gemini-2.0-flash",
 })
 const openrouter = new ChatOpenRouter({
   model: "deepseek/deepseek-chat",
@@ -22,6 +22,8 @@ export const getModel=(agent)=>{
             return groq;
         case "coding":
             return openrouter;
+        case "imageRag":
+            return gemini;
     
         default:
             return groq;
