@@ -22,6 +22,7 @@ import BillingDrawer from "./layout/BillingDrawer";
 
 const Sidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const dispatch = useDispatch();
   const [imageError, setImageError] = useState(false);
@@ -47,7 +48,7 @@ const Sidebar = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const shouldCollapse = isMobile || collapsed;
+  const shouldCollapse = isMobile ? !mobileOpen : collapsed;
 
   if (shouldCollapse) {
     return (
@@ -55,7 +56,11 @@ const Sidebar = () => {
         <button
           className="flex items-center justify-center w-9 h-9 rounded-xl text-slate-500 hover:text-slate-200 hover:bg-white/5 transition-colors duration-150 bg-transparent border-none cursor-pointer mb-1"
           onClick={() => {
-            setCollapsed(!collapsed);
+            if (isMobile) {
+              setMobileOpen(true);
+            } else {
+              setCollapsed(!collapsed);
+            }
           }}
         >
           <PanelRightIcon />
@@ -71,7 +76,10 @@ const Sidebar = () => {
             const isActive = selectedConversation?._id == conv._id;
             return (
               <div
-                onClick={() => dispatch(setSelectedConversation(conv))}
+                onClick={() => {
+                  dispatch(setSelectedConversation(conv));
+                  setMobileOpen(false);
+                }}
                 className={`flex justify-center items-center gap-2.5 cursor-pointer mb-0.5 px-3 py-2.5 rounded-[10px] border transition-colors w-10 h-10 duration-150 text-sm ${isActive ? "bg-indigo-500/10 border-indigo-500/18" : "bg-transparent border-transparent"}`}
                 key={i}
               >
@@ -106,16 +114,29 @@ const Sidebar = () => {
     );
   }
   return (
-    <div className="hidden lg:flex relative w-67.5 h-screen shrink-0 bg-[#0d0f14] border-r border-white/6">
+    <>
+      {isMobile && (
+        <button
+          type="button"
+          aria-label="Close sidebar"
+          className="fixed inset-0 z-30 bg-black/60"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
+    <div className={`${isMobile ? "fixed inset-y-0 left-0 z-40 w-67.5 shadow-2xl" : "relative w-67.5"} flex h-screen shrink-0 bg-[#0d0f14] border-r border-white/6`}>
       <div className="flex flex-col h-full">
         {/* Sidebar Header */}
 
         <div className="flex justify-between items-center px-4 py-4 border-b border-white/6">
           <div className="flex gap-4">
             <span
-              className="hidden lg:flex items-center justify-center w-7 h-7 text-slate-500 hover:text-slate-200 transition-colors duration-150 bg-transparent cursor-pointer"
+              className="flex items-center justify-center w-7 h-7 text-slate-500 hover:text-slate-200 transition-colors duration-150 bg-transparent cursor-pointer"
               onClick={() => {
-                setCollapsed(!collapsed);
+                if (isMobile) {
+                  setMobileOpen(false);
+                } else {
+                  setCollapsed(!collapsed);
+                }
               }}
             >
               <PanelLeft />
@@ -126,11 +147,14 @@ const Sidebar = () => {
           </div>
           <div className="flex items-center gap-4">
             <span className="bg-blue-500 tracking-wide text-blue-50 py-1 px-2 text-xs rounded-full">
-              Free
+              {userData.plan || "Free"}
             </span>
             <span
               className="text-slate-500 hover:text-slate-200 transition-colors duration-150 bg-transparent cursor-pointer"
-              onClick={() => dispatch(setSelectedConversation(null))}
+                onClick={() => {
+                  dispatch(setSelectedConversation(null));
+                  setMobileOpen(false);
+                }}
             >
               <PenBoxIcon size={16} />
             </span>
@@ -142,7 +166,10 @@ const Sidebar = () => {
         <div className="px-4 pt-4 pb-1">
           <button
             className="font-semibold flex px-3 py-2 items-center justify-center w-full gap-2 rounded-xl text-black bg-slate-100 hover:opacity-90 active:scale-101 transition-all duration-150"
-            onClick={() => dispatch(setSelectedConversation(null))}
+            onClick={() => {
+              dispatch(setSelectedConversation(null));
+              setMobileOpen(false);
+            }}
           >
             <PlusIcon size={18} />
             New Chat
@@ -168,7 +195,10 @@ const Sidebar = () => {
             const isActive = selectedConversation?._id == conv._id;
             return (
               <div
-                onClick={() => dispatch(setSelectedConversation(conv))}
+                onClick={() => {
+                  dispatch(setSelectedConversation(conv));
+                  setMobileOpen(false);
+                }}
                 className={`flex items-center gap-2.5 cursor-pointer mb-0.5 px-3 py-2.5 rounded-[10px] border transition-colors duration-150 text-sm ${isActive ? "bg-indigo-500/10 border-indigo-500/18" : "bg-transparent border-transparent"}`}
                 key={i}
               >
@@ -216,7 +246,7 @@ const Sidebar = () => {
                 <p className="text-[13.5px] font-semibold text-slate-100 truncate">
                   {userData?.name || "user"}
                 </p>
-                <p className="text-[11px] text-slate-600 mt-px">Free Plan</p>
+                <p className="text-[11px] text-slate-600 mt-px">{`${userData.plan} plan`|| "Free plan"}</p>
               </div>
               <div className="flex gap-1">
                 <button
@@ -243,6 +273,7 @@ const Sidebar = () => {
       </div>
       <BillingDrawer open={showBilling} onClose={() => setShowBilling(false)} />
     </div>
+    </>
   );
 };
 

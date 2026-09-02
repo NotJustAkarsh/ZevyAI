@@ -14,7 +14,7 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import sendMessage from "../../features/sendMessage";
 import { useDispatch, useSelector } from "react-redux";
-import { addMessage, setArtifacts } from "../../redux/messageSlice";
+import { addMessage, setArtifacts, updateMessage } from "../../redux/messageSlice";
 import { createConversation } from "../../features/createConversation";
 import {
   addConversation,
@@ -30,6 +30,7 @@ const ChatInput = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const fileRef = useRef(null);
   const { selectedConversation } = useSelector((state) => state.conversation);
+  const { messages } = useSelector((state) => state.message);
   const dispatch = useDispatch();
 
   const previewUrl = useMemo(() => {
@@ -74,6 +75,9 @@ const ChatInput = () => {
     }
 
     dispatch(addMessage({ role: "user", content: value.trim() }));
+    const loadingMessageIndex = messages.length + 1;
+    const loadingMessage = { role: "assistant", content: "", loading: true };
+    dispatch(addMessage(loadingMessage));
     setValue("");
     setSelectedFile(null);
     if (fileRef.current) {
@@ -81,15 +85,19 @@ const ChatInput = () => {
     }
     const data = await sendMessage(formData);
 
-    dispatch(setArtifacts(data.artifacts || []));
-
     dispatch(
-      addMessage({
-        role: "assistant",
-        content: data.answer,
-        images: data.images,
+      updateMessage({
+        index: loadingMessageIndex,
+        message: {
+          role: "assistant",
+          content: data?.answer || "Failed to generate a response.",
+          images: data?.images,
+        },
       }),
     );
+
+    dispatch(setArtifacts(data?.artifacts || []));
+
     console.log(data);
   };
 
@@ -138,7 +146,7 @@ const ChatInput = () => {
     },
   ];
   return (
-    <div className="w-full overflow-hidden px-3 md:px-5 py-4 border-t border-white/6 bg-[#0d0f14]">
+    <div className="w-full overflow-hidden px-3 pr-16 lg:px-5 lg:pr-5 py-4 border-t border-white/6 bg-[#0d0f14]">
       <div className="flex flex-col gap-2 bg-white/3 border border-white/7 rounded-2xl px-4 pt-3.5 pb-3">
         <div className="flex w-[80%] gap-2 pr-2 flex-wrap">
           {agents.map((agent, i) => {
@@ -210,8 +218,8 @@ const ChatInput = () => {
           </div>
           <button
             onClick={handleSendMessage}
-            disabled={!value}
-            className={`flex items-center justify-center w-8 h-8 rounded-full border-none cursor-pointer transition-all duration-150 hover:opacity-80 text-white ${value ? "bg-linear-to-br from-indigo-500 to-violet-700" : "bg-white/5 text-slate-600 cursor-not-allowed"} `}
+            disabled={!value.trim() && !selectedFile}
+            className={`flex items-center justify-center w-8 h-8 rounded-full border-none cursor-pointer transition-all duration-150 hover:opacity-80 text-white ${value.trim() || selectedFile ? "bg-linear-to-br from-indigo-500 to-violet-700" : "bg-white/5 text-slate-600 cursor-not-allowed"} `}
           >
             <Send size={16} fill="white" />
           </button>

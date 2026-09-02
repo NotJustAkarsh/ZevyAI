@@ -7,17 +7,29 @@ import {
   PanelRightOpen,
 } from "lucide-react";
 import Editor from "@monaco-editor/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { easeInOut, motion } from "motion/react";
 
 const Artifacts = () => {
   const [collapsed, setCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const [tab, setTab] = useState("code");
   const [activeFile, setActiveFile] = useState(0);
   const [copied, setCopied] = useState(false);
   const { artifacts } = useSelector((state) => state.message);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 1024);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   if (artifacts.length == 0) return;
+
+  const shouldCollapse = isMobile ? !mobileOpen : collapsed;
 
   const file = artifacts[0]?.files[activeFile];
   const htmlFile = artifacts[0]?.files.find((f) => f.name === "index.html");
@@ -70,18 +82,27 @@ const handleCopy = async()=>{
   };
 
   return (
+    <>
+      {isMobile && !shouldCollapse && (
+        <button
+          type="button"
+          aria-label="Close artifacts panel"
+          className="fixed inset-0 z-30 bg-black/60"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
     <motion.div
-      initial={{ width: 400 }}
-      animate={{ width: collapsed ? 48 : 400 }}
+      initial={false}
+      animate={{ width: shouldCollapse ? 48 : 400 }}
       transition={{ duration: 0.25, ease: easeInOut }}
-      className="hidden lg:flex h-full border-l border-white/6 flex-col overflow-hidden shrink-0 w-50"
+      className={`${isMobile ? "fixed inset-y-0 right-0 z-40 w-[min(92vw,400px)] shadow-2xl" : "relative w-100"} flex h-full border-l border-white/6 flex-col overflow-hidden shrink-0`}
     >
-      {!collapsed ? (
+      {!shouldCollapse ? (
         <div className="flex flex-col h-full bg-[#0d0f14]">
           <div className="h-14 px-4 border-b border-white/6 flex items-center gap-3 shrink-0">
             <button
               className="flex items-center justify-center w-7 h-7 rounded-lg text-slate-500 hover:text-slate-200 hover:bg-white/5 transition-colors duration-150 bg-transparent border-none cursor-pointer shrink-0"
-              onClick={() => setCollapsed(true)}
+              onClick={() => (isMobile ? setMobileOpen(false) : setCollapsed(true))}
             >
               <PanelRightClose size={18} />
             </button>
@@ -180,10 +201,10 @@ const handleCopy = async()=>{
           </div>
         </div>
       ) : (
-        <div className="hidden lg:flex h-full flex-col border-white/6 items-center py-4 gap-3 shrink-0 bg-[#0d0f14]">
+        <div className="flex h-full flex-col border-white/6 items-center py-4 gap-3 shrink-0 bg-[#0d0f14]">
           <button
             className="flex items-center justify-center w-7 h-7 rounded-lg text-slate-500 hover:text-slate-200 hover:bg-white/5 transition-colors duration-150 bg-transparent border-none cursor-pointer shrink-0"
-            onClick={() => setCollapsed(false)}
+            onClick={() => (isMobile ? setMobileOpen(true) : setCollapsed(false))}
           >
             <PanelRightOpen size={18} />
           </button>
@@ -201,6 +222,18 @@ const handleCopy = async()=>{
         </div>
       )}
     </motion.div>
+    {isMobile && shouldCollapse && (
+      <button
+        type="button"
+        aria-label="Open artifacts panel"
+        title="Open artifacts"
+        className="fixed right-0 top-1/2 z-20 flex h-12 w-10 -translate-y-1/2 items-center justify-center rounded-l-xl border border-r-0 border-white/10 bg-[#13151c] text-slate-400 shadow-lg hover:text-slate-100"
+        onClick={() => setMobileOpen(true)}
+      >
+        <PanelRightOpen size={18} />
+      </button>
+    )}
+    </>
   );
 };
 

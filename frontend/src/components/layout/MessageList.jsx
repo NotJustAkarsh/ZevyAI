@@ -1,11 +1,24 @@
 import { useSelector } from "react-redux";
 import MessageBubble from "./MessageBubble";
+import { useEffect } from "react";
+import { useRef } from "react";
 
 const MessageList = () => {
   const { selectedConversation } = useSelector((state) => state.conversation);
   const { messages } = useSelector((state) => state.message);
+
+  const bottomRef=useRef(null);
+
+  useEffect(()=>{
+    requestAnimationFrame(()=>{
+      bottomRef?.current.scrollIntoView({
+        behaviour:"smooth",
+        block:"end"
+      })
+    })
+  },[messages.length])
   return (
-    <div className="flex-1 overflow-y-auto px-6 py-6 space-y-5 scrollbar-none [&::-webkit-scrollbar]:hidden">
+    <div className="flex-1 overflow-y-auto px-6 pr-16 lg:pr-6 py-6 space-y-5 scrollbar-none [&::-webkit-scrollbar]:hidden">
       {messages.length == 0 || !selectedConversation ? (
         <div className="h-full flex flex-col items-center justify-center gap-4 text-center">
           <div className="flex flex-col gap-1.5">
@@ -43,11 +56,13 @@ const MessageList = () => {
                 role={msg?.role}
                 content={msg?.content}
                 images={msg.images || []}
+                loading={msg?.loading}
               />
             </div>
           ))}
         </div>
       )}
+      <div ref={bottomRef}/>
     </div>
   );
 };

@@ -5,7 +5,7 @@ import remarkGfm from "remark-gfm";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 
-const MessageBubble = ({ role, content, images }) => {
+const MessageBubble = ({ role, content, images = [], loading = false }) => {
   const isUser = role == "user";
 
   const [lightBox, setLightBox] = useState(null);
@@ -30,7 +30,16 @@ const MessageBubble = ({ role, content, images }) => {
               : " text-slate-200 rounded-tl-sm"
           }`}
       >
-        {images.length > 0 && (
+        {loading ? (
+          <div
+            className="flex items-center gap-1.5 py-1.5"
+            aria-label="AI is generating a response"
+          >
+            <span className="h-2 w-2 animate-bounce rounded-full bg-indigo-400 [animation-delay:-0.3s]" />
+            <span className="h-2 w-2 animate-bounce rounded-full bg-indigo-400 [animation-delay:-0.15s]" />
+            <span className="h-2 w-2 animate-bounce rounded-full bg-indigo-400" />
+          </div>
+        ) : images.length > 0 && (
           <div className="flex flex-wrap gap-3 mt-4">
             {images.map((img, i) => (
               <img
@@ -44,7 +53,7 @@ const MessageBubble = ({ role, content, images }) => {
             ))}
           </div>
         )}
-        <Markdown
+        {!loading && <Markdown
           remarkPlugins={[remarkGfm]}
           components={{
             h1: ({ children }) => (
@@ -160,7 +169,7 @@ const MessageBubble = ({ role, content, images }) => {
           }}
         >
           {content}
-        </Markdown>
+        </Markdown>}
       </div>
       {lightBox && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-6">

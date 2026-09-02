@@ -1,4 +1,4 @@
-import React from "react";
+import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "motion/react";
 import { Crown, X } from "lucide-react";
 import { useSelector } from "react-redux";
@@ -36,7 +36,8 @@ const BillingDrawer = ({ open, onClose }) => {
       console.log(error);
     }
   };
-  return (
+  return createPortal(
+    (
     <AnimatePresence>
       {open && (
         <>
@@ -44,7 +45,7 @@ const BillingDrawer = ({ open, onClose }) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 0.5 }}
             exit={{ opacity: 0 }}
-            onClick={onclose}
+            onClick={onClose}
             className="fixed inset-0 bg-black z-40"
           />
           <motion.div
@@ -124,7 +125,8 @@ const BillingDrawer = ({ open, onClose }) => {
         </>
       )}
     </AnimatePresence>
+    ),
+    document.body,
   );
 };
-
 export default BillingDrawer;

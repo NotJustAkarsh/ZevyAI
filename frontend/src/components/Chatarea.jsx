@@ -20,7 +20,7 @@ const Chatarea = () => {
 
         const latestArtifactMessage = [...data]
           .reverse()
-          .find((msg) => msg.artifacts && msg.artifacts.length > 0);
+          .find((msg) => msg.artifacts && msg.artifacts?.length > 0);
         dispatch(setArtifacts(latestArtifactMessage.artifacts || []));
         dispatch(setMessages(data));
       }
