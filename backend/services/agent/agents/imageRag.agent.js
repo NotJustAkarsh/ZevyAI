@@ -2,8 +2,10 @@ import { getModel } from "../config/llmModels.js";
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import { deductCredits } from "../utils/deductCredits.js";
 import fs from "fs/promises";
+import { checkAgentLimit } from "../config/agentlimit.js";
 
 export const imageRagAgent = async (state) => {
+  await checkAgentLimit(state.userId,"image")
   try {
     const llm = await getModel("imageRag");
     const imageBuffer = await fs.readFile(state.file.path);
@@ -48,7 +50,7 @@ export const imageRagAgent = async (state) => {
     console.log(error)
     return{
       ...state,
-      aiResponse:"Failed to analyze file"
+      aiResponse: error?.data?.message || "Failed to generate Image",
     }
   }finally{
     if (state.file?.path) {

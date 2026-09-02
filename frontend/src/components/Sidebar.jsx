@@ -147,7 +147,7 @@ const Sidebar = () => {
           </div>
           <div className="flex items-center gap-4">
             <span className="bg-blue-500 tracking-wide text-blue-50 py-1 px-2 text-xs rounded-full">
-              {userData.plan || "Free"}
+              {userData?.plan || "Free"}
             </span>
             <span
               className="text-slate-500 hover:text-slate-200 transition-colors duration-150 bg-transparent cursor-pointer"

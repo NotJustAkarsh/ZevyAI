@@ -1,10 +1,13 @@
+import { checkAgentLimit } from "../config/agentlimit.js";
 import { getModel } from "../config/llmModels.js";
 import { deductCredits } from "../utils/deductCredits.js";
 
 export const codingAgent = async (state) => {
-  const intentLlm = await getModel("intent");
-  const llm = await getModel("coding");
-  const intentRes = await intentLlm.invoke(`
+  try {
+    await checkAgentLimit(state.userId, "coding");
+    const intentLlm = await getModel("intent");
+    const llm = await getModel("coding");
+    const intentRes = await intentLlm.invoke(`
         You are an intent classifier.
         
         Return ONLY one of these values.
@@ -20,9 +23,9 @@ export const codingAgent = async (state) => {
         User Request:
         ${state.prompt}
         `);
-  const intent = intentRes.content;
-  if (intent == "CODE_GENERATION") {
-    const prompt = `
+    const intent = intentRes.content;
+    if (intent == "CODE_GENERATION") {
+      const prompt = `
         You are ZevyAI Coding Agent.
         
         Generate the requested project.
@@ -81,24 +84,24 @@ export const codingAgent = async (state) => {
         User Request:
         ${state.prompt}`;
 
-    const res = await llm.invoke(prompt);
-    const data = JSON.parse(res.content);
-    await deductCredits(state.userId,"coding")
-    return {
-      ...state,
-      aiResponse: "Code Generated Successfully.",
-      artifacts: [
-        {
-          id: Date.now(),
-          type: "Project",
-          files: data.files || [],
-          title:state.prompt
-        },
-      ],
-    };
-  }
+      const res = await llm.invoke(prompt);
+      const data = JSON.parse(res.content);
+      await deductCredits(state.userId, "coding");
+      return {
+        ...state,
+        aiResponse: "Code Generated Successfully.",
+        artifacts: [
+          {
+            id: Date.now(),
+            type: "Project",
+            files: data.files || [],
+            title: state.prompt,
+          },
+        ],
+      };
+    }
 
-  const res = await llm.invoke(`
+    const res = await llm.invoke(`
     The user's request is:
     
     ${intent}
@@ -126,11 +129,18 @@ export const codingAgent = async (state) => {
     ${state.prompt}
     `);
 
-    const data = res.content
-    await deductCredits(state.userId,"coding")
+    const data = res.content;
+    await deductCredits(state.userId, "coding");
     return {
-        ...state,
-        aiResponse:data,
-        artifacts:[]
-    }
+      ...state,
+      aiResponse: data,
+      artifacts: [],
+    };
+  } catch (error) {
+    return {
+      ...state,
+      aiResponse: error?.data?.message || "Failed to generate Code",
+      artifacts: [],
+    };
+  }
 };
